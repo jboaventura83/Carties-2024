@@ -8,21 +8,17 @@ public class DbInitializer
     public static void InitDb(WebApplication app)
     {
         using var scope = app.Services.CreateScope();
-
-        var context = scope.ServiceProvider.GetService<AuctionDbContext>()
-            ?? throw new InvalidOperationException("Failed to retrieve AuctionDbContext from the service provider.");
-
-        SeedData(context);
+        SeedData(scope.ServiceProvider.GetRequiredService<AuctionDbContext>());
     }
 
-    private static void SeedData(AuctionDbContext context)
+    private static void SeedData(AuctionDbContext context) 
     {
         context.Database.Migrate();
-
+    
         if (context.Auctions.Any())
         {
-            Console.WriteLine("Already have data - no seeding required");
-            return;
+            Console.WriteLine("Database has been seeded.");
+            return; // DB has been seeded
         }
 
         var auctions = new List<Auction>()
@@ -197,7 +193,7 @@ public class DbInitializer
             }
         };
 
-        context.AddRange(auctions);
+        context.Auctions.AddRange(auctions);
 
         context.SaveChanges();
     }

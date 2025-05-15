@@ -13,17 +13,8 @@ public class AuctionSvcHttpClient(HttpClient httpClient, IConfiguration config)
             .Project(x => x.UpdatedAt.ToString())
             .ExecuteFirstAsync();
 
-        var auctionURL = config["AuctionServiceUrl"]
-            ?? throw new ArgumentNullException("Cannot get auction address");
-
-        var url = auctionURL + "/api/auctions";
-
-        if (!string.IsNullOrEmpty(lastUpdated))
-        {
-            url += $"?date={lastUpdated}";
-        }
-
-        var items = await httpClient.GetFromJsonAsync<List<Item>>(url);
+        var items = await httpClient.GetFromJsonAsync<List<Item>>(config["AuctionServiceUrl"] 
+            + "/api/auctions?date=" + lastUpdated);
 
         return items ?? [];
     }
